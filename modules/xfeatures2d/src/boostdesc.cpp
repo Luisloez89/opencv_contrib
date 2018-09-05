@@ -68,7 +68,7 @@ namespace xfeatures2d
 /*
  !BoostDesc implementation
  */
-class BoostDesc_Impl : public BoostDesc
+class BoostDesc_Impl CV_FINAL : public BoostDesc
 {
 
 public:
@@ -79,19 +79,26 @@ public:
                              float scale_factor = 6.25f );
 
     // destructor
-    virtual ~BoostDesc_Impl();
+    virtual ~BoostDesc_Impl() CV_OVERRIDE;
 
     // returns the descriptor length in bytes
-    virtual int descriptorSize() const { return m_descriptor_size; }
+    virtual int descriptorSize() const CV_OVERRIDE { return m_descriptor_size; }
 
     // returns the descriptor type
-    virtual int descriptorType() const { return m_descriptor_type; }
+    virtual int descriptorType() const CV_OVERRIDE { return m_descriptor_type; }
 
     // returns the default norm type
-    virtual int defaultNorm()    const { return m_descriptor_norm; }
+    virtual int defaultNorm()    const CV_OVERRIDE { return m_descriptor_norm; }
 
     // compute descriptors given keypoints
-    virtual void compute( InputArray image, vector<KeyPoint>& keypoints, OutputArray descriptors );
+    virtual void compute( InputArray image, vector<KeyPoint>& keypoints, OutputArray descriptors ) CV_OVERRIDE;
+
+    // getter / setter
+    virtual void setUseScaleOrientation(const bool use_scale_orientation) CV_OVERRIDE { m_use_scale_orientation = use_scale_orientation; }
+    virtual bool getUseScaleOrientation() const CV_OVERRIDE { return m_use_scale_orientation; }
+
+    virtual void setScaleFactor(const float scale_factor) CV_OVERRIDE { m_scale_factor = scale_factor; }
+    virtual float getScaleFactor() const CV_OVERRIDE { return m_scale_factor; }
 
 protected:
 
@@ -232,7 +239,7 @@ static void computeGradientMaps( const Mat& im,
               break;
 
             case ASSIGN_HARD_MAGN:
-              gradMap[index].at<uchar>(i,j) = (uchar) round( gradMagnitude );
+              gradMap[index].at<uchar>(i,j) = (uchar) cvRound( gradMagnitude );
               break;
 
             case ASSIGN_BILINEAR:
@@ -240,8 +247,8 @@ static void computeGradientMaps( const Mat& im,
               index2 = ( index2 == orientQuant ) ? 0 : index2;
               binCenter  = ( index + 0.5f ) * binSize;
               weight = 1 - abs( theta - binCenter ) / binSize;
-              gradMap[index ].at<uchar>(i,j) = (uchar) round( 255 * weight );
-              gradMap[index2].at<uchar>(i,j) = (uchar) round( 255 * ( 1 - weight ) );
+              gradMap[index ].at<uchar>(i,j) = (uchar) cvRound( 255 * weight );
+              gradMap[index2].at<uchar>(i,j) = (uchar) cvRound( 255 * ( 1 - weight ) );
               break;
 
             case ASSIGN_SOFT:
@@ -251,7 +258,7 @@ static void computeGradientMaps( const Mat& im,
                 binCenter = ( index2 + 0.5f ) * binSize;
                 weight = cos( theta - binCenter );
                 weight = ( weight < 0 ) ? 0 : weight;
-                gradMap[index2].at<uchar>(i,j) = (uchar) round( 255 * weight );
+                gradMap[index2].at<uchar>(i,j) = (uchar) cvRound( 255 * weight );
               }
               break;
 
@@ -262,7 +269,7 @@ static void computeGradientMaps( const Mat& im,
                 binCenter = ( index2 + 0.5f ) * binSize;
                 weight = cos( theta - binCenter );
                 weight = ( weight < 0 ) ? 0 : weight;
-                gradMap[index2].at<uchar>(i,j) = (uchar) round( gradMagnitude * weight );
+                gradMap[index2].at<uchar>(i,j) = (uchar) cvRound( gradMagnitude * weight );
               }
               break;
           } // end switch
@@ -408,7 +415,7 @@ struct ComputeBoostDescInvoker : ParallelLoopBody
       use_scale_orientation  = _use_scale_orientation;
     }
 
-    void operator ()( const cv::Range& range ) const
+    void operator ()( const cv::Range& range ) const CV_OVERRIDE
     {
       // maps
       vector<Mat> gradMap, integralMap;

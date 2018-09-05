@@ -45,11 +45,15 @@
 
 #include "precomp.hpp"
 #include "opencv2/video/tracking.hpp"
-#include "opencv2/dnn.hpp"
 #include "gtrUtils.hpp"
 #include "opencv2/imgproc.hpp"
-#include<algorithm>
-#include<limits.h>
+
+#include <algorithm>
+#include <limits.h>
+
+#include "opencv2/opencv_modules.hpp"
+#ifdef HAVE_OPENCV_DNN
+#include "opencv2/dnn.hpp"
 
 namespace cv
 {
@@ -60,10 +64,10 @@ class TrackerGOTURNImpl : public TrackerGOTURN
 {
 public:
     TrackerGOTURNImpl(const TrackerGOTURN::Params &parameters = TrackerGOTURN::Params());
-    void read(const FileNode& fn);
-    void write(FileStorage& fs) const;
-    bool initImpl(const Mat& image, const Rect2d& boundingBox);
-    bool updateImpl(const Mat& image, Rect2d& boundingBox);
+    void read(const FileNode& fn) CV_OVERRIDE;
+    void write(FileStorage& fs) const CV_OVERRIDE;
+    bool initImpl(const Mat& image, const Rect2d& boundingBox) CV_OVERRIDE;
+    bool updateImpl(const Mat& image, Rect2d& boundingBox) CV_OVERRIDE;
 
     TrackerGOTURN::Params params;
 
@@ -72,5 +76,5 @@ public:
 
 }
 }
-
+#endif
 #endif

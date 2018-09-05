@@ -1125,7 +1125,7 @@ double cv::omnidir::calibrate(InputArrayOfArrays patternPoints, InputArrayOfArra
 		double epsilon = 0.01 * std::pow(0.9, (double)iter/10);
         cv::omnidir::internal::computeJacobian(_patternPoints, _imagePoints, currentParam, JTJ_inv, JTError, flags, epsilon);
 
-        // Gauss¨CNewton
+        // Gauss - Newton
         Mat G = alpha_smooth2*JTJ_inv * JTError;
 
         omnidir::internal::fillFixed(G, flags, n);
@@ -1278,7 +1278,7 @@ double cv::omnidir::stereoCalibrate(InputOutputArrayOfArrays objectPoints, Input
         cv::omnidir::internal::computeJacobianStereo(_objectPointsFilt, _imagePoints1Filt, _imagePoints2Filt, currentParam,
 			JTJ_inv, JTError, flags, epsilon);
 
-        // Gauss¨CNewton
+        // Gauss - Newton
         Mat G = alpha_smooth2*JTJ_inv * JTError;
 
         omnidir::internal::fillFixedStereo(G, flags, n);
@@ -1785,8 +1785,6 @@ void cv::omnidir::internal::estimateUncertainties(InputArrayOfArrays objectPoint
 
     errors = 3 * s * _JTJ_inv.diag();
 
-    checkFixed(errors, flags, n);
-
     rms = 0;
     const Vec2d* ptr_ex = reprojError.ptr<Vec2d>();
     for (int i = 0; i < (int)reprojError.total(); i++)
@@ -1993,52 +1991,6 @@ double cv::omnidir::internal::computeMeanReproErrStereo(InputArrayOfArrays objec
     double reProErr = (reProErr1 + reProErr2) / 2.0;
     //double reProErr = reProErr1*reProErr1 + reProErr2* reProErr2;
     return reProErr;
-}
-
-void cv::omnidir::internal::checkFixed(Mat& G, int flags, int n)
-{
-    int _flags = flags;
-    if(_flags >= omnidir::CALIB_FIX_CENTER)
-    {
-        G.at<double>(6*n+3) = 0;
-        G.at<double>(6*n+4) = 0;
-        _flags -= omnidir::CALIB_FIX_CENTER;
-    }
-    if(_flags >= omnidir::CALIB_FIX_GAMMA)
-    {
-        G.at<double>(6*n) = 0;
-        G.at<double>(6*n+1) = 0;
-        _flags -= omnidir::CALIB_FIX_GAMMA;
-    }
-    if(_flags >= omnidir::CALIB_FIX_XI)
-    {
-        G.at<double>(6*n + 5) = 0;
-        _flags -= omnidir::CALIB_FIX_XI;
-    }
-    if(_flags >= omnidir::CALIB_FIX_P2)
-    {
-        G.at<double>(6*n + 9) = 0;
-        _flags -= omnidir::CALIB_FIX_P2;
-    }
-    if(_flags >= omnidir::CALIB_FIX_P1)
-    {
-        G.at<double>(6*n + 8) = 0;
-        _flags -= omnidir::CALIB_FIX_P1;
-    }
-    if(_flags >= omnidir::CALIB_FIX_K2)
-    {
-        G.at<double>(6*n + 7) = 0;
-        _flags -= omnidir::CALIB_FIX_K2;
-    }
-    if(_flags >= omnidir::CALIB_FIX_K1)
-    {
-        G.at<double>(6*n + 6) = 0;
-        _flags -= omnidir::CALIB_FIX_K1;
-    }
-    if(_flags >= omnidir::CALIB_FIX_SKEW)
-    {
-        G.at<double>(6*n + 2) = 0;
-    }
 }
 
 // This function is from fisheye.cpp

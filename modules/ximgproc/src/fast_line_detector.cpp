@@ -49,7 +49,7 @@ class FastLineDetectorImpl : public FastLineDetector
          *                  a line. Where Vec4f is (x1, y1, x2, y2), point 1 is the start, point 2 is the end.
          *                  Returned lines are directed so that the brighter side is placed on left.
          */
-        void detect(InputArray _image, OutputArray _lines);
+        void detect(InputArray _image, OutputArray _lines) CV_OVERRIDE;
 
         /**
          * Draw lines on the given canvas.
@@ -59,7 +59,7 @@ class FastLineDetectorImpl : public FastLineDetector
          * @param lines          The lines that need to be drawn
          * @param draw_arrow     If true, arrow heads will be drawn
          */
-        void drawSegments(InputOutputArray _image, InputArray lines, bool draw_arrow = false);
+        void drawSegments(InputOutputArray _image, InputArray lines, bool draw_arrow = false) CV_OVERRIDE;
 
     private:
         int imagewidth, imageheight, threshold_length;
@@ -182,10 +182,10 @@ void FastLineDetectorImpl::drawSegments(InputOutputArray _image, InputArray line
             getAngle(seg);
             double ang = (double)seg.angle;
             Point2i p1;
-            p1.x = (int)round(seg.x2 - gap*cos(arrow_angle * CV_PI / 180.0 + ang));
-            p1.y = (int)round(seg.y2 - gap*sin(arrow_angle * CV_PI / 180.0 + ang));
+            p1.x = cvRound(seg.x2 - gap*cos(arrow_angle * CV_PI / 180.0 + ang));
+            p1.y = cvRound(seg.y2 - gap*sin(arrow_angle * CV_PI / 180.0 + ang));
             pointInboardTest(_image.getMatRef(), p1);
-            line(_image.getMatRef(), Point((int)round(seg.x2), (int)round(seg.y2)), p1, Scalar(0,0,255), 1);
+            line(_image.getMatRef(), Point(cvRound(seg.x2), cvRound(seg.y2)), p1, Scalar(0,0,255), 1);
         }
     }
 }
@@ -717,14 +717,14 @@ void FastLineDetectorImpl::drawSegment(Mat& mat, const SEGMENT& seg, Scalar bgr,
     double arrow_angle = 30.0;
 
     Point2i p1;
-    p1.x = (int)round(seg.x2 - gap*cos(arrow_angle * CV_PI / 180.0 + ang));
-    p1.y = (int)round(seg.y2 - gap*sin(arrow_angle * CV_PI / 180.0 + ang));
+    p1.x = cvRound(seg.x2 - gap*cos(arrow_angle * CV_PI / 180.0 + ang));
+    p1.y = cvRound(seg.y2 - gap*sin(arrow_angle * CV_PI / 180.0 + ang));
     pointInboardTest(mat, p1);
 
-    line(mat, Point((int)round(seg.x1), (int)round(seg.y1)),
-            Point((int)round(seg.x2), (int)round(seg.y2)), bgr, thickness, 1);
+    line(mat, Point(cvRound(seg.x1), cvRound(seg.y1)),
+            Point(cvRound(seg.x2), cvRound(seg.y2)), bgr, thickness, 1);
     if(directed)
-        line(mat, Point((int)round(seg.x2), (int)round(seg.y2)), p1, bgr, thickness, 1);
+        line(mat, Point(cvRound(seg.x2), cvRound(seg.y2)), p1, bgr, thickness, 1);
 }
 } // namespace cv
 } // namespace ximgproc

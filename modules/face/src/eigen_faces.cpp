@@ -16,7 +16,8 @@
  *   See <http://www.opensource.org/licenses/bsd-license>
  */
 #include "precomp.hpp"
-#include "face_basic.hpp"
+#include <opencv2/face.hpp>
+#include "face_utils.hpp"
 #include <set>
 #include <limits>
 #include <iostream>
@@ -28,21 +29,28 @@ namespace face
 
 // Turk, M., and Pentland, A. "Eigenfaces for recognition.". Journal of
 // Cognitive Neuroscience 3 (1991), 71–86.
-class Eigenfaces : public BasicFaceRecognizerImpl
+class Eigenfaces : public EigenFaceRecognizer
 {
 
 public:
     // Initializes an empty Eigenfaces model.
     Eigenfaces(int num_components = 0, double threshold = DBL_MAX)
-        : BasicFaceRecognizerImpl(num_components, threshold)
-    {}
+        //: BasicFaceRecognizerImpl(num_components, threshold)
+    {
+        _num_components = num_components;
+        _threshold = threshold;
+    }
 
     // Computes an Eigenfaces model with images in src and corresponding labels
     // in labels.
-    void train(InputArrayOfArrays src, InputArray labels);
+    void train(InputArrayOfArrays src, InputArray labels) CV_OVERRIDE;
 
     // Send all predict results to caller side for custom result handling
-    void predict(InputArray src, Ptr<PredictCollector> collector) const;
+    void predict(InputArray src, Ptr<PredictCollector> collector) const CV_OVERRIDE;
+    String getDefaultName() const CV_OVERRIDE
+    {
+        return "opencv_eigenfaces";
+    }
 };
 
 //------------------------------------------------------------------------------
@@ -122,7 +130,7 @@ void Eigenfaces::predict(InputArray _src, Ptr<PredictCollector> collector) const
     }
 }
 
-Ptr<BasicFaceRecognizer> createEigenFaceRecognizer(int num_components, double threshold)
+Ptr<EigenFaceRecognizer> EigenFaceRecognizer::create(int num_components, double threshold)
 {
     return makePtr<Eigenfaces>(num_components, threshold);
 }
